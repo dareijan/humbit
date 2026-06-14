@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/humbit/static/css/main.fb5de033.css",
+    "main.js": "/humbit/static/js/main.67eb6333.js",
+    "static/js/488.58509309.chunk.js": "/humbit/static/js/488.58509309.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/humbit/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff",
+    "static/media/bootstrap-icons.woff2?": "/humbit/static/media/bootstrap-icons.92ea18a81d737146ff04.woff2",
+    "static/media/klo1.PNG": "/humbit/static/media/klo1.052147301cb6e49f2660.PNG",
+    "static/media/klo2.PNG": "/humbit/static/media/klo2.5f384dccd3283352eb96.PNG",
+    "static/media/klo4.PNG": "/humbit/static/media/klo4.5ef839a02f0cbc2ebf48.PNG",
+    "static/media/klo10.PNG": "/humbit/static/media/klo10.c6f11dee0c20d46b0f26.PNG",
+    "static/media/klo11.PNG": "/humbit/static/media/klo11.e09a84b622bbce805379.PNG",
+    "static/media/klo5.PNG": "/humbit/static/media/klo5.b76901ff8f24672e670f.PNG",
+    "static/media/klo8.PNG": "/humbit/static/media/klo8.82a91da32f1754a92840.PNG",
+    "static/media/klo7.PNG": "/humbit/static/media/klo7.2e7d82d09128e0bdeb61.PNG",
+    "static/media/klo6.PNG": "/humbit/static/media/klo6.d3bcc9d3853b2dd826b5.PNG",
+    "static/media/klo9.PNG": "/humbit/static/media/klo9.bae5527fc7c48fdd78cd.PNG",
+    "static/media/klo3.PNG": "/humbit/static/media/klo3.2016a60f9289dc9abbef.PNG",
+    "static/media/klo12.PNG": "/humbit/static/media/klo12.10e7f161cb1f08f9e29b.PNG",
+    "index.html": "/humbit/index.html",
+    "main.fb5de033.css.map": "/humbit/static/css/main.fb5de033.css.map",
+    "main.67eb6333.js.map": "/humbit/static/js/main.67eb6333.js.map",
+    "488.58509309.chunk.js.map": "/humbit/static/js/488.58509309.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fb5de033.css",
+    "static/js/main.67eb6333.js"
+  ]
+}
