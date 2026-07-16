@@ -9,7 +9,7 @@ import Col from 'react-bootstrap/Col';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Alert from "react-bootstrap/Alert";
 
-import TuuliKomponentti from './komponentit/TuuliKomponentti'
+import HumiditeettiKomponentti from './komponentit/HumiditeettiKomponentti'
 
 const apibase =   'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::timevaluepair&place=Jyväskylä&parameters=Humidity'
 
@@ -68,11 +68,11 @@ export default function App() {
                 huomenna = 1;
               }
               //let lampo = "";
-              if (lkm <= 20) {
+              //if (lkm <= 20) {
                 //value = aika +"-"+value;
                 setState({saadata1: state.saadata1.push({aika, paivamaarateksti, value})});
                 setState({data: state.data.push({aika, paivamaarateksti, value})});              
-              }    
+              //}    
               
             paivamaarateksti = '';
             }
@@ -120,7 +120,7 @@ export default function App() {
             </Col>
           </Row>
         </Container>              
-      <TuuliKomponentti data={state.data} />
+      <HumiditeettiKomponentti data={state.data} />
 
     </div>
   );

@@ -16,7 +16,7 @@ import klo11 from "../kuvat/klo11.PNG";
 import klo12 from "../kuvat/klo12.PNG";
 
 
-const TuuliKomponentti = ({ data }) => {
+const HumiditeettiKomponentti = ({ data }) => {
   if (data !== undefined && data.length > 0) {
     var sliceddata = data.slice(0, data.length - 15);
     const rows = sliceddata.map(item => Object.values(item));
@@ -113,4 +113,4 @@ const TuuliKomponentti = ({ data }) => {
   };
   };
   
-  export default TuuliKomponentti;
+  export default HumiditeettiKomponentti;
