@@ -18,7 +18,7 @@ import klo12 from "../kuvat/klo12.PNG";
 
 const HumiditeettiKomponentti = ({ data }) => {
   if (data !== undefined && data.length > 0) {
-    var sliceddata = data.slice(0, data.length - 15);
+    var sliceddata = data.slice(0, data.length - 70);
     const rows = sliceddata.map(item => Object.values(item));
 
     return (
