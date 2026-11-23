@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -9,119 +9,101 @@ import Col from 'react-bootstrap/Col';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Alert from "react-bootstrap/Alert";
 
-import HumiditeettiKomponentti from './komponentit/HumiditeettiKomponentti'
+import HumiditeettiKomponentti from './komponentit/HumiditeettiKomponentti';
 
-const apibase =   'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::timevaluepair&place=Jyväskylä&parameters=Humidity'
+const apibase =
+  'https://opendata.fmi.fi/wfs?service=WFS&version=2.0.0&request=getFeature' +
+  '&storedquery_id=fmi::forecast::edited::weather::scandinavia::point::timevaluepair' +
+  '&place=' + encodeURIComponent('Jyväskylä') +
+  '&parameters=Humidity';
 
+const POISSULJETTAVAT_YON_AJAT = ["01:00", "02:00", "03:00", "04:00", "05:00", "06:00"];
+const VIIKONPAIVAT = ["Sunnuntai", "Maanantai", "Tiistai", "Keskiviikko", "Torstai", "Perjantai", "Lauantai"];
 
 export default function App() {
-
-  
-  const [saadata1, setTuntiData1] = useState([]);
-
-  const [state, setState] = useState({
-    data: [],
-    limit: 5,
-    activePage: 1,
-    saadata1: []
-    //jostain syystä funktion sisällä nämä näkyy sitten katoaa kun piirtäminen alkaa
-  });  
+  const [data, setData] = useState([]);
 
   useEffect(() => {
+    let cancelled = false;
 
-    const paivamaara = new Date();
-    paivamaara.toLocaleString('en-US', { timeZone: 'Europe/Helsinki' });
-    const vuosi = paivamaara.getFullYear();
-    const kuukausi = String(paivamaara.getMonth() + 1).padStart(2, '0'); // Month is 0-based
-    const paiva = String(paivamaara.getDate()).padStart(2, '0');
-    const tunti = String(paivamaara.getHours()).padStart(2, '0');
-    const paivays = vuosi + "-" + kuukausi + "-" + paiva + "T" + tunti + ":00:00Z"
+    // Start of the current hour, in UTC ISO format without milliseconds
+    const alku = new Date();
+    alku.setMinutes(0, 0, 0);
+    const paivays = alku.toISOString().replace('.000Z', 'Z');
 
-    //useita axios requesteja tapahtuu, joten estetään se
-    if(state.data.length <= 0) {
-      axios
-      .get((apibase+"&starttime="+paivays)).then((result) => {
-        var poissuljettavat_yön_ajat = ["01:00", "02:00", "03:00", "04:00", "05:00", "06:00"];
-        let parser = new DOMParser();
-        let parsedxml = parser.parseFromString(result.data, "text/xml");
-        var lkm=0;
-        parsedxml.querySelectorAll('MeasurementTVP').forEach((measurementTVPObjektit) => {
-         // measurementTimeseriess.querySelectorAll('MeasurementTVP').forEach((measurementTVPObjektit) => {
-            let value = measurementTVPObjektit.querySelector('value').textContent;
-            let time = measurementTVPObjektit.querySelector('time').textContent;
-            var kokonainenaika = time.split(/T/);
-            var kellonaika = kokonainenaika[1].split(/:/);
-            var kellonaika0 = kellonaika[0];
-            var kellonaika1 = kellonaika[1];
-            var aika = kellonaika0 + ":" + kellonaika1;
-            var huomenna = 0;
-            var paivamaarateksti = '';
-            //if(state.saadata1.length <= 20) {
-            if (poissuljettavat_yön_ajat.indexOf(aika) < 0) {
-              lkm++;
-              //päätellään milloin pitää piirtää huomisteksti
-              if(aika === '07:00' && huomenna === 0) {
-                const viikonpaiva = ["Sunnuntai","Maanantai","Tiistai","Keskiviikko","Torstai","Perjantai","Lauantai"];
-                const paiva = new Date(kokonainenaika[0]);
-                paivamaarateksti = viikonpaiva[paiva.getDay()];
-                //paivamaarateksti = kokonainenaika[0];
-                huomenna = 1;
-              }
-              //let lampo = "";
-              //if (lkm <= 20) {
-                //value = aika +"-"+value;
-                setState({saadata1: state.saadata1.push({aika, paivamaarateksti, value})});
-                setState({data: state.data.push({aika, paivamaarateksti, value})});              
-              //}    
-              
-            paivamaarateksti = '';
-            }
-       // });
+    axios
+      .get(`${apibase}&starttime=${paivays}`)
+      .then((result) => {
+        if (cancelled) return;
+
+        const parser = new DOMParser();
+        const parsedxml = parser.parseFromString(result.data, "text/xml");
+
+        if (parsedxml.querySelector('parsererror')) {
+          console.log('XML parse error');
+          return;
+        }
+
+        const rivit = [];
+
+        parsedxml.querySelectorAll('MeasurementTVP').forEach((tvp) => {
+          const value = tvp.querySelector('value')?.textContent;
+          const time = tvp.querySelector('time')?.textContent;
+          if (value == null || time == null) return;
+
+          const [paivaStr, kello] = time.split('T');
+          const [hh, mm] = kello.split(':');
+          const aika = `${hh}:${mm}`;
+
+          if (POISSULJETTAVAT_YON_AJAT.includes(aika)) return;
+
+          // Show the weekday name when a new day starts (07:00)
+          let paivamaarateksti = '';
+          if (aika === '07:00') {
+            const [v, k, p] = paivaStr.split('-').map(Number);
+            paivamaarateksti = VIIKONPAIVAT[new Date(Date.UTC(v, k - 1, p)).getUTCDay()];
+          }
+
+          rivit.push({ aika, paivamaarateksti, value });
         });
-       // }
-        // ei näin setState({data: state.saadata_1});
-        setState((prev) => ({
-          ...prev,
-          data: state.saadata1
-        }));
 
-        setTuntiData1(state.saadata1);
-                
+        setData(rivit);
       })
       .catch((error) => console.log(error));
-    }
-  }, [state.data]);
 
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    return (
+  return (
     <div>
-        <Container>
-          <Row>
-            <Col md="9">
-              <br />
-              <div align="center">           
-              <h6 className="violetti">Humbit - Maalaussää Jyväskylässä</h6> 
-              </div>          
-            </Col>
-          </Row>
-        </Container>
-        <Container>
-          <Row>
-            <Col md="9">
-              <br />
-              <div align="left">     
-              <Alert key="light" variant="light" width="60%">
-                <i className="bi bi-hand-thumbs-up lila" title="ei sada"> maalaussää</i>
+      <Container>
+        <Row>
+          <Col md="9">
+            <br />
+            <div align="center">
+              <h6 className="violetti">Humbit - Maalaussää Jyväskylässä</h6>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      <Container>
+        <Row>
+          <Col md="9">
+            <br />
+            <div align="left">
+              <Alert key="light" variant="light">
+                <i className="bi bi-hand-thumbs-up lila" title="maalaussää"> maalaussää</i>
                 <br />
-                <i className="bi bi-hand-thumbs-down lila" title="ei sada"> ei maalaussäätä</i>
+                <i className="bi bi-hand-thumbs-down lila" title="ei maalaussäätä"> ei maalaussäätä</i>
                 <br />
               </Alert>
-              </div>      
-            </Col>
-          </Row>
-        </Container>              
-      <HumiditeettiKomponentti data={state.data} />
-
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      <HumiditeettiKomponentti data={data} />
     </div>
   );
-  };
+}
